@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./proto";
+
+service TaskService {
+  rpc FetchTask (Empty) returns (Task);
+  rpc SubmitResult (TaskResult) returns (Empty);
+}
+message Task {
+  int32 id = 1;
+  double arg1 = 2;
+  double arg2 = 3;
+  string operation = 4;
+  int32 operation_time = 5;
+}
+
+message TaskResult {
+  int32 id = 1;
+  double result = 2;
+  string error = 3; 
+}
+
+message Empty {}
