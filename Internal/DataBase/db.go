@@ -10,7 +10,7 @@ var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("sqlite", "./calculator.db")
+	DB, err = sql.Open("sqlite", "./DB/calculator.db")
 	if err != nil {
 		log.Fatal("Ошибка подключения к SQLite:", err)
 	}
