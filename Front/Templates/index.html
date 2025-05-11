@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Распределенный калькулятор</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Распределенный калькулятор</h1>
+    </div>
+
+    <div class="auth-section" id="authSection">
+        <h2 id="authTitle">Login</h2>
+        <form id="authForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="btn btn-primary" id="authButton">Login</button>
+        </form>
+        <p id="authToggle">Don't have an account? <a href="#" id="toggleLink">Register</a></p>
+    </div>
+
+    <div class="calculator-form" id="calculatorForm" style="display: none;">
+        <div class="logout-btn">
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+        <div class="input-group">
+            <label for="expression">Введите выражение:</label>
+            <input type="text" id="expression" required>
+        </div>
+        <button class="btn btn-primary" onclick="submitExpression()" id="submitButton">Отправить выражение</button>
+        <button class="btn btn-secondary" onclick="loadExpressions()">Показать все выражения</button>
+        <div class="status" id="statusMessage"></div>
+    </div>
+
+    <div class="expression-list" id="expressionList" style="display: none;">
+        <h3>Все выражения:</h3>
+        <table>
+            <thead><tr><th>ID</th><th>Выражение</th><th>Статус</th><th>Результат</th></tr></thead>
+            <tbody id="expressionsTable"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const API = window.location.origin + '/api/v1';
+    let isLogin = true;
+    let jwtToken = null;  // здесь будет храниться наш токен
+    function toggleAuth(){
+        isLogin = !isLogin;
+        document.getElementById('authTitle').textContent = isLogin ? 'Login' : 'Register';
+        document.getElementById('authButton').textContent = isLogin ? 'Login' : 'Register';
+        document.getElementById('authToggle').innerHTML = isLogin ?
+            "Don't have an account? <a href='#' onclick='toggleAuth()'>Register</a>" :
+            "Already have an account? <a href='#' onclick='toggleAuth()'>Login</a>";
+    }
+    async function authSubmit(e){
+        e.preventDefault();
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const url = isLogin ? API + '/login' : API + '/register';
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({username:user,password:pass})
+        });
+        const data = await res.json();
+        if(res.ok){
+            jwtToken = data.token;
+            document.getElementById('authSection').style.display='none';
+            document.getElementById('calculatorForm').style.display='block';
+            loadExpressions();
+        } else alert(data.error||data.message);
+    }
+    async function submitExpression(){
+        const expr = document.getElementById('expression').value;
+        const res = await fetch(API + '/expressions', {
+                        method: 'POST',
+                        headers: {
+                           'Content-Type':'application/json',
+                                'Authorization': 'Bearer ' + jwtToken
+                       },
+                    body: JSON.stringify({expression:expr})
+               });
+        const data = await res.json();
+        if(res.ok){ loadExpressions(); } else alert(data.error);
+    }
+    async function loadExpressions(){
+        const res = await fetch(API + '/expressions', {
+                        headers: { 'Authorization': 'Bearer ' + jwtToken }
+        });
+        const list = await res.json();
+        const tb = document.getElementById('expressionsTable'); tb.innerHTML='';
+        list.forEach(e=>{
+            const row = `<tr>
+            <td>${e.id.slice(0,8)}</td>
+            <td>${e.expr}</td>
+            <td class='status ${e.status}'>${e.status}</td>
+            <td>${e.result}</td>
+        </tr>`;
+            tb.insertAdjacentHTML('beforeend', row);
+        });
+        document.getElementById('expressionList').style.display='block';
+    }
+    async function logout(){
+        await fetch(API + '/logout', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + jwtToken }
+        });
+        jwtToken = null;
+        location.reload();
+    }
+    document.getElementById('toggleLink').addEventListener('click', e=>{e.preventDefault();toggleAuth();});
+    document.getElementById('authForm').addEventListener('submit', authSubmit);
+</script>

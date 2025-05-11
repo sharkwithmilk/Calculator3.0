@@ -2,3 +2,5 @@
 /.env
 /env
 /.db
+*.db
+/DB/*.db
