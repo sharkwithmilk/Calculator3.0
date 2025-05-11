@@ -2,15 +2,15 @@ package DataBase
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"log"
+	_ "modernc.org/sqlite"
 )
 
 var DB *sql.DB
 
 func InitDB() {
 	var err error
-	DB, err = sql.Open("sqlite3", "./calculator.db")
+	DB, err = sql.Open("sqlite", "./calculator.db")
 	if err != nil {
 		log.Fatal("Ошибка подключения к SQLite:", err)
 	}

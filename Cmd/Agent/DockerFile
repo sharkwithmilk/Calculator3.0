@@ -6,12 +6,16 @@ WORKDIR /app
 
 # Копируем go.mod для установки зависимостей
 COPY go.mod ./
+COPY go.sum ./
+
+# Устанавливаем зависимости
+RUN go mod download
 
 # Копируем исходный код
 COPY . .
 
 # Собираем приложение
-RUN go build -o agent ./cmd/agent
+RUN go build -o agent ./Cmd/Agent
 
 # Устанавливаем переменную окружения по умолчанию
 ENV COMPUTING_POWER=4

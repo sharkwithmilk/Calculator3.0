@@ -4,6 +4,7 @@ import (
 	"Calculator3.0/Internal/User"
 	"github.com/golang-jwt/jwt/v5"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -31,7 +32,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		userID := int(claims["user_id"].(float64))
-		r.Header.Set("User-ID", string(userID))
+		r.Header.Set("User-ID", strconv.Itoa(userID))
 		next(w, r)
 	}
 }

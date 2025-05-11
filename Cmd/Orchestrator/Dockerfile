@@ -4,20 +4,18 @@ FROM golang:1.23
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем go.mod для установки зависимостей
+# Копируем go.mod и go.sum для установки зависимостей
 COPY go.mod ./
+COPY go.sum ./
+
+# Устанавливаем зависимости
+RUN go mod download
 
 # Копируем исходный код
 COPY . .
 
 # Собираем приложение
-RUN go build -o orchestrator ./cmd/orchestrator
-
-# Устанавливаем переменные окружения по умолчанию
-ENV TIME_ADDITION_MS=100
-ENV TIME_SUBTRACTION_MS=100
-ENV TIME_MULTIPLICATIONS_MS=200
-ENV TIME_DIVISIONS_MS=200
+RUN go build -o orchestrator ./Cmd/Orchestrator
 
 # Открываем порт для HTTP-запросов
 EXPOSE 8080
