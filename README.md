@@ -164,7 +164,7 @@ $env:TIME_DIVISION_MS = 250
 
 ```bash
 git clone https://github.com/sharkwithmilk/Calculator3.0
-cd GoCalculator3.0
+cd Calculator3.0
 ```
 
 ### Запуск с помощью Docker Compose
