@@ -3,12 +3,20 @@ package DataBase
 import (
 	"database/sql"
 	"log"
+	"os"
 	_ "modernc.org/sqlite"
 )
 
 var DB *sql.DB
 
 func InitDB() {
+	dir := "./DB"
+    	if _, err := os.Stat(dir); os.IsNotExist(err) {
+        	err := os.MkdirAll(dir, os.ModePerm)
+        	if err != nil {
+            		log.Fatal("Ошибка создания директории:", err)
+        	}
+    	}
 	var err error
 	DB, err = sql.Open("sqlite", "./DB/calculator.db")
 	if err != nil {
